@@ -1,0 +1,12 @@
+# ── Core UI & chart ──────────────────────────────────────────────────────────
+PySide6>=6.6.0
+
+# ── Numerical ────────────────────────────────────────────────────────────────
+numpy>=1.26.0
+
+# ── Async data feeds (optional — only needed for live feeds) ─────────────────
+websockets>=12.0        # WebSocketFeed
+aiohttp>=3.9.0          # RESTFeed
+
+# ── Packaging ─────────────────────────────────────────────────────────────────
+pyinstaller>=6.3.0
