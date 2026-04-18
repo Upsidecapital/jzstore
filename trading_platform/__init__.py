@@ -4,4 +4,4 @@ Production-grade footprint & order flow analytics desktop application.
 """
 
 __version__ = "1.0.0"
-__author__  = "JZ Store"
+__author__  = "Upside Capital"

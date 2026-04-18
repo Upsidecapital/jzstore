@@ -39,7 +39,7 @@ from PySide6.QtWidgets import (
     QComboBox, QSizePolicy, QFrame,
 )
 
-from .config import get_config, update_config
+from .config import get_config, update_config, apply_symbol, active_provider, SYMBOLS
 from .aggregation_engine import AggregationEngine, RawCandle, _LiveCandle
 from .data_engine import DataEngine, Trade
 from .footprint_engine import FootprintEngine, FootprintCandle
@@ -127,7 +127,7 @@ class MainWindow(QMainWindow):
         self._wire_signals()
         self._start_feed()
 
-        self.setWindowTitle(f"JZ Analytics  –  {get_config().symbol}  [{session.username}]")
+        self.setWindowTitle(f"Upside Analytics  –  {get_config().symbol}  [{session.username}]")
         self.resize(1440, 900)
 
     # ── UI construction ───────────────────────────────────────────────────────
@@ -172,12 +172,24 @@ class MainWindow(QMainWindow):
         tb.setIconSize(__import__("PySide6.QtCore", fromlist=["QSize"]).QSize(16, 16))
         self.addToolBar(tb)
 
-        # Symbol label
-        sym_lbl = QLabel(f"  {get_config().symbol}  ")
-        sym_lbl.setStyleSheet(
-            f"color:{hex_color('text_secondary')}; font-size:10px; letter-spacing:2px;"
-        )
+        # Symbol selector
+        sym_lbl = QLabel("  Symbol ")
+        sym_lbl.setStyleSheet(f"color:{hex_color('text_secondary')}; font-size:10px;")
         tb.addWidget(sym_lbl)
+
+        self._sym_combo = QComboBox()
+        self._sym_combo.setMinimumWidth(160)
+        for key, meta in SYMBOLS.items():
+            self._sym_combo.addItem(meta["display"], key)
+        # Select default
+        default_idx = next(
+            (i for i in range(self._sym_combo.count())
+             if self._sym_combo.itemData(i) == get_config().symbol),
+            0,
+        )
+        self._sym_combo.setCurrentIndex(default_idx)
+        self._sym_combo.currentIndexChanged.connect(self._on_symbol_changed)
+        tb.addWidget(self._sym_combo)
 
         # Live price
         self._price_label = _PriceLabel()
@@ -214,8 +226,8 @@ class MainWindow(QMainWindow):
         spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         tb.addWidget(spacer)
 
-        # Feed mode indicator
-        self._feed_lbl = QLabel(f"  FEED: {get_config().feed_mode.upper()}  ")
+        # Feed / provider indicator
+        self._feed_lbl = QLabel(f"  FEED: {active_provider().upper()}  ")
         self._feed_lbl.setStyleSheet(
             f"color:{hex_color('absorption')}; font-size:10px; letter-spacing:1px;"
         )
@@ -338,6 +350,33 @@ class MainWindow(QMainWindow):
 
     # ── UI event handlers ─────────────────────────────────────────────────────
 
+    def _on_symbol_changed(self, idx: int) -> None:
+        symbol = self._sym_combo.itemData(idx)
+        if not symbol or symbol == get_config().symbol:
+            return
+        # Apply symbol: updates tick_size + mock_base_price automatically
+        apply_symbol(symbol)
+        # Restart feed with new symbol
+        self._stop_feed()
+        self._reset_chart()
+        self._worker        = _DataWorker()
+        self._worker_thread = QThread()
+        self._worker.moveToThread(self._worker_thread)
+        self._wire_signals()
+        self._start_feed()
+        provider = active_provider()
+        self._feed_lbl.setText(f"  FEED: {provider.upper()}  ")
+        self.setWindowTitle(
+            f"Upside Analytics  –  {get_config().symbol}  [{self._session.username}]"
+        )
+
+    def _reset_chart(self) -> None:
+        self._agg_engine.reset()
+        self._fp_chart.clear()
+        self._cvd_panel.clear()
+        self._candles.clear()
+        self._vp_manager.reset_session()
+
     def _on_tf_changed(self, idx: int) -> None:
         val = self._tf_combo.itemData(idx)
         update_config(timeframe_seconds=val)
@@ -354,8 +393,8 @@ class MainWindow(QMainWindow):
 
     def _on_settings_changed(self) -> None:
         cfg = get_config()
-        self.setWindowTitle(f"JZ Analytics  –  {cfg.symbol}  [{self._session.username}]")
-        self._feed_lbl.setText(f"  FEED: {cfg.feed_mode.upper()}  ")
+        self.setWindowTitle(f"Upside Analytics  –  {cfg.symbol}  [{self._session.username}]")
+        self._feed_lbl.setText(f"  FEED: {active_provider().upper()}  ")
 
     def _logout(self) -> None:
         from .license_manager import logout

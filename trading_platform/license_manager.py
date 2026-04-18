@@ -24,11 +24,11 @@ from typing import Optional
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
-_KEY_SALT   = b"jzstore-trading-v1-salt-0xDEADBEEF"
+_KEY_SALT   = b"upside-trading-v1-salt-0xDEADBEEF"
 _KEY_REGEX  = re.compile(
     r"^JZST-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$"
 )
-_SESSION_FILE = Path.home() / ".jzstore" / "session.json"
+_SESSION_FILE = Path.home() / ".upside_analytics" / "session.json"
 
 # Hard-coded demo keys (replace with cloud validation in production)
 _VALID_KEYS: dict[str, dict] = {

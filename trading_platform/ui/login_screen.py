@@ -44,7 +44,7 @@ class _LogoBanner(QWidget):
         f = QFont("Consolas", 22, QFont.Weight.Bold)
         f.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing, 4)
         p.setFont(f)
-        p.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, "JZ ANALYTICS")
+        p.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, "UPSIDE ANALYTICS")
 
         p.setPen(color("text_secondary"))
         sub = QFont("Segoe UI", 9)
@@ -150,7 +150,7 @@ class LoginScreen(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("JZ Analytics — Sign In")
+        self.setWindowTitle("Upside Analytics — Sign In")
         self.setFixedSize(420, 480)
         self.setWindowFlags(
             Qt.WindowType.Dialog | Qt.WindowType.FramelessWindowHint
@@ -219,7 +219,7 @@ class LoginScreen(QDialog):
         card_layout.addWidget(tabs)
 
         # Version footer
-        ver = QLabel("v1.0.0  •  © 2024 JZ Analytics")
+        ver = QLabel("v1.0.0  •  © 2024 Upside Capital")
         ver.setObjectName("sub")
         ver.setAlignment(Qt.AlignmentFlag.AlignCenter)
         card_layout.addWidget(ver)

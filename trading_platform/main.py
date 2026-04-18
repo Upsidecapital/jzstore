@@ -1,5 +1,5 @@
 """
-Entry Point — JZ Analytics Trading Platform
+Entry Point — Upside Analytics Trading Platform
 ============================================
 Startup sequence:
   1. Qt app + dark theme
@@ -62,7 +62,7 @@ class _Splash(QSplashScreen):
         f.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing, 5)
         painter.setFont(f)
         painter.setPen(QColor("#00c896"))
-        painter.drawText(0, 0, W, H - 60, Qt.AlignmentFlag.AlignCenter, "JZ ANALYTICS")
+        painter.drawText(0, 0, W, H - 60, Qt.AlignmentFlag.AlignCenter, "UPSIDE ANALYTICS")
 
         # Subtitle
         f2 = QFont("Segoe UI", 11)
@@ -77,7 +77,7 @@ class _Splash(QSplashScreen):
         painter.setPen(QColor("#2e3a4a"))
         painter.drawText(0, H - 24, W - 10, 20,
                          Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter,
-                         "v1.0.0  —  © 2024 JZ Store")
+                         "v1.0.0  —  © 2024 Upside Capital")
 
         # Loading message (uses Qt's built-in message system)
         msg = self.message()
@@ -110,9 +110,9 @@ def main() -> int:
     os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
 
     app = QApplication(sys.argv)
-    app.setApplicationName("JZ Analytics")
+    app.setApplicationName("Upside Analytics")
     app.setApplicationVersion("1.0.0")
-    app.setOrganizationName("JZ Store")
+    app.setOrganizationName("Upside Capital")
 
     apply_dark_theme(app)
 

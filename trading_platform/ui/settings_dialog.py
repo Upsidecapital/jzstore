@@ -49,6 +49,7 @@ class SettingsDialog(QDialog):
 
         tabs = QTabWidget()
         tabs.addTab(self._feed_tab(),     "Feed")
+        tabs.addTab(self._apikeys_tab(),  "API Keys")
         tabs.addTab(self._candle_tab(),   "Candle")
         tabs.addTab(self._analysis_tab(), "Analysis")
         tabs.addTab(self._display_tab(),  "Display")
@@ -73,20 +74,9 @@ class SettingsDialog(QDialog):
         form.setContentsMargins(20, 16, 20, 16)
         form.setSpacing(12)
 
-        self._symbol = QLineEdit()
-        form.addRow("Symbol", self._symbol)
-
         self._feed_mode = QComboBox()
-        self._feed_mode.addItems(["mock", "websocket", "rest"])
-        form.addRow("Feed Mode", self._feed_mode)
-
-        self._ws_url = QLineEdit()
-        self._ws_url.setPlaceholderText("wss://feed.example.com/trades")
-        form.addRow("WebSocket URL", self._ws_url)
-
-        self._rest_url = QLineEdit()
-        self._rest_url.setPlaceholderText("https://feed.example.com/trades")
-        form.addRow("REST URL", self._rest_url)
+        self._feed_mode.addItems(["auto", "mock", "binance", "polygon", "oanda"])
+        form.addRow("Feed Override", self._feed_mode)
 
         self._mock_hz = QDoubleSpinBox()
         self._mock_hz.setRange(0.5, 100.0)
@@ -94,11 +84,98 @@ class SettingsDialog(QDialog):
         self._mock_hz.setSuffix("  ticks/s")
         form.addRow("Mock Speed", self._mock_hz)
 
-        note = QLabel("Feed mode changes require restarting the data engine.")
+        note = QLabel(
+            "\"auto\" uses the best provider for the selected symbol.\n"
+            "Crypto (BTC, ETH…) → Binance (FREE, no key needed).\n"
+            "FX/Metals (EURUSD, XAUUSD…) → Polygon.io or OANDA.\n"
+            "Enter API keys in the  API Keys  tab."
+        )
         note.setObjectName("sub")
         note.setWordWrap(True)
         form.addRow(note)
 
+        return w
+
+    # ── API Keys tab ──────────────────────────────────────────────────────────
+
+    def _apikeys_tab(self) -> QWidget:
+        from PySide6.QtWidgets import QScrollArea, QVBoxLayout as VBox
+        w = QWidget()
+        layout = VBox(w)
+        layout.setContentsMargins(20, 16, 20, 16)
+        layout.setSpacing(16)
+
+        # ── Binance (free) ────────────────────────────────────────────────────
+        grp_bn = QGroupBox("Binance  —  Crypto (FREE, no API key needed)")
+        bn_form = QFormLayout(grp_bn)
+        bn_note = QLabel(
+            "Binance streams are free and require no account.\n"
+            "Select any USDT pair in the toolbar to use live data immediately."
+        )
+        bn_note.setObjectName("sub")
+        bn_note.setWordWrap(True)
+        bn_form.addRow(bn_note)
+        layout.addWidget(grp_bn)
+
+        # ── Polygon.io ────────────────────────────────────────────────────────
+        grp_pol = QGroupBox("Polygon.io  —  FX + Metals  ($29/month Starter plan)")
+        pol_form = QFormLayout(grp_pol)
+
+        pol_note = QLabel(
+            "Sign up at  polygon.io  → Forex Starter plan (~$29/mo).\n"
+            "Covers: EURUSD, AUDUSD, GBPUSD, USDJPY, XAUUSD, XAGUSD and 60+ pairs.\n"
+            "Paste your API key below, then select an FX symbol in the toolbar."
+        )
+        pol_note.setObjectName("sub")
+        pol_note.setWordWrap(True)
+        pol_form.addRow(pol_note)
+
+        self._polygon_key = QLineEdit()
+        self._polygon_key.setPlaceholderText("Enter Polygon.io API key…")
+        self._polygon_key.setEchoMode(QLineEdit.EchoMode.Password)
+        pol_form.addRow("API Key", self._polygon_key)
+
+        pol_show = QCheckBox("Show key")
+        pol_show.toggled.connect(
+            lambda on: self._polygon_key.setEchoMode(
+                QLineEdit.EchoMode.Normal if on else QLineEdit.EchoMode.Password
+            )
+        )
+        pol_form.addRow("", pol_show)
+        layout.addWidget(grp_pol)
+
+        # ── OANDA ─────────────────────────────────────────────────────────────
+        grp_oa = QGroupBox("OANDA  —  FX + Metals  (FREE with practice account)")
+        oa_form = QFormLayout(grp_oa)
+
+        oa_note = QLabel(
+            "Sign up free at  oanda.com  → open a practice account.\n"
+            "Go to  My Account → Manage API Access  to generate a key.\n"
+            "Covers: EUR_USD, AUD_USD, GBP_USD, XAU_USD and 70+ pairs."
+        )
+        oa_note.setObjectName("sub")
+        oa_note.setWordWrap(True)
+        oa_form.addRow(oa_note)
+
+        self._oanda_key = QLineEdit()
+        self._oanda_key.setPlaceholderText("Enter OANDA API key…")
+        self._oanda_key.setEchoMode(QLineEdit.EchoMode.Password)
+        oa_form.addRow("API Key", self._oanda_key)
+
+        oa_show = QCheckBox("Show key")
+        oa_show.toggled.connect(
+            lambda on: self._oanda_key.setEchoMode(
+                QLineEdit.EchoMode.Normal if on else QLineEdit.EchoMode.Password
+            )
+        )
+        oa_form.addRow("", oa_show)
+
+        self._oanda_account = QLineEdit()
+        self._oanda_account.setPlaceholderText("e.g. 001-001-1234567-001")
+        oa_form.addRow("Account ID", self._oanda_account)
+
+        layout.addWidget(grp_oa)
+        layout.addStretch()
         return w
 
     # ── Candle tab ────────────────────────────────────────────────────────────
@@ -218,13 +295,14 @@ class SettingsDialog(QDialog):
     def _load_current(self):
         cfg = get_config()
 
-        self._symbol.setText(cfg.symbol)
         idx = self._feed_mode.findText(cfg.feed_mode)
         if idx >= 0:
             self._feed_mode.setCurrentIndex(idx)
-        self._ws_url.setText(cfg.ws_url)
-        self._rest_url.setText(cfg.rest_url)
         self._mock_hz.setValue(cfg.mock_tick_hz)
+
+        self._polygon_key.setText(cfg.polygon_api_key)
+        self._oanda_key.setText(cfg.oanda_api_key)
+        self._oanda_account.setText(cfg.oanda_account_id)
 
         tf_val = cfg.timeframe_seconds
         for i in range(self._timeframe.count()):
@@ -247,11 +325,11 @@ class SettingsDialog(QDialog):
 
     def _apply(self):
         update_config(
-            symbol                    = self._symbol.text().strip(),
             feed_mode                 = self._feed_mode.currentText(),
-            ws_url                    = self._ws_url.text().strip(),
-            rest_url                  = self._rest_url.text().strip(),
             mock_tick_hz              = self._mock_hz.value(),
+            polygon_api_key           = self._polygon_key.text().strip(),
+            oanda_api_key             = self._oanda_key.text().strip(),
+            oanda_account_id          = self._oanda_account.text().strip(),
             timeframe_seconds         = self._timeframe.currentData(),
             tick_size                 = self._tick_size.value(),
             max_candles               = self._max_candles.value(),
