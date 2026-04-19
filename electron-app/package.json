@@ -30,14 +30,11 @@
           "target": "nsis",
           "arch": ["x64"]
         }
-      ],
-      "icon": "src/icon.ico"
+      ]
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "installerIcon": "src/icon.ico",
-      "installerHeaderIcon": "src/icon.ico",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Upside Orderflow"
