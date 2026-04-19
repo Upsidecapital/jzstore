@@ -1,0 +1,46 @@
+{
+  "name": "upside-orderflow",
+  "version": "1.0.0",
+  "description": "Upside Orderflow Trading Analytics Platform",
+  "author": "Upside Capital",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^29.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.upsidecapital.orderflow",
+    "productName": "Upside Orderflow",
+    "copyright": "Copyright © 2025 Upside Capital",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "src/**/*",
+      "vendor/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "src/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "src/icon.ico",
+      "installerHeaderIcon": "src/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Upside Orderflow"
+    }
+  }
+}
