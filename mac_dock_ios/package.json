@@ -1,0 +1,15 @@
+{
+  "name": "mac-dock",
+  "version": "1.0.0",
+  "description": "Turn your iPhone into a Mac dock and controller",
+  "scripts": {
+    "sync": "npx cap sync ios",
+    "open": "npx cap open ios",
+    "build": "echo 'Static web app — no build step required'"
+  },
+  "dependencies": {
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/ios": "^6.0.0"
+  }
+}

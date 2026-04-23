@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0,
+                 maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Mac Dock">
+  <title>Mac Dock</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ── Discovery / connection screen (shown first) ───────── -->
+  <div id="disc-screen">
+    <div id="disc-card">
+      <div id="disc-icon">⌘</div>
+      <h1 id="disc-title">Mac Dock</h1>
+      <div id="disc-spinner"><div></div><div></div><div></div><div></div></div>
+      <p id="disc-status">Searching for your Mac…</p>
+
+      <!-- Manual fallback (hidden until Bonjour fails) -->
+      <div id="disc-manual">
+        <p id="disc-manual-note">Couldn't find your Mac automatically.</p>
+        <div class="disc-field-row">
+          <label>Mac IP address</label>
+          <input id="disc-ip" type="text" inputmode="url"
+                 placeholder="192.168.1.x" autocomplete="off"
+                 autocorrect="off" spellcheck="false">
+        </div>
+        <div class="disc-field-row disc-port-row">
+          <label>Port</label>
+          <input id="disc-port" type="number" value="8765" min="1" max="65535">
+        </div>
+        <button id="disc-connect-btn">Connect</button>
+        <p id="disc-error"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Status bar ──────────────────────────────────────────── -->
+  <header id="header">
+    <div id="conn-status">
+      <span id="conn-dot"></span>
+      <span id="conn-label">Connecting…</span>
+    </div>
+    <div id="header-right">
+      <span id="mac-name">Mac Dock</span>
+      <button id="disconnect-btn" title="Change Mac">⇄</button>
+    </div>
+  </header>
+
+  <!-- ── Tab content ────────────────────────────────────────── -->
+  <main id="main">
+
+    <!-- APPS -------------------------------------------------- -->
+    <section id="tab-apps" class="tab active">
+      <div id="search-wrap">
+        <input id="search" type="search" placeholder="Search apps…"
+               autocomplete="off" autocorrect="off" spellcheck="false">
+      </div>
+      <div id="pinned-row">
+        <span class="section-label">Running</span>
+        <div id="running-strip"></div>
+      </div>
+      <div class="section-label" style="padding:0 18px 6px">All Apps</div>
+      <div id="app-grid"></div>
+    </section>
+
+    <!-- TRACKPAD ---------------------------------------------- -->
+    <section id="tab-pad" class="tab">
+      <div id="pad-area">
+        <div id="trackpad">
+          <div id="pad-hint">
+            <span>Slide to move cursor</span>
+            <span class="pad-sub">Tap = click · Two-finger = scroll · Hold = right-click</span>
+          </div>
+        </div>
+        <div id="click-bar">
+          <button class="click-btn" id="btn-left">Left</button>
+          <button class="click-btn" id="btn-dbl">Double</button>
+          <button class="click-btn" id="btn-right">Right</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTROLS ---------------------------------------------- -->
+    <section id="tab-controls" class="tab">
+      <div class="controls-scroll">
+
+        <div class="ctrl-card">
+          <div class="ctrl-card-title">Volume</div>
+          <div class="vol-row">
+            <span class="vol-icon">🔈</span>
+            <input type="range" id="vol-slider" min="0" max="100" value="50">
+            <span class="vol-icon">🔊</span>
+          </div>
+          <div class="vol-pct"><span id="vol-val">50</span>%</div>
+        </div>
+
+        <div class="ctrl-card">
+          <div class="ctrl-card-title">Media</div>
+          <div class="media-row">
+            <button class="media-btn" data-action="prev">⏮</button>
+            <button class="media-btn" data-action="play">⏯</button>
+            <button class="media-btn" data-action="next">⏭</button>
+          </div>
+        </div>
+
+        <div class="ctrl-card">
+          <div class="ctrl-card-title">Keyboard Shortcuts</div>
+          <div class="shortcut-grid">
+            <button class="sc-btn" data-keys='["command","c"]'>⌘C Copy</button>
+            <button class="sc-btn" data-keys='["command","v"]'>⌘V Paste</button>
+            <button class="sc-btn" data-keys='["command","z"]'>⌘Z Undo</button>
+            <button class="sc-btn" data-keys='["command","shift","z"]'>⌘⇧Z Redo</button>
+            <button class="sc-btn" data-keys='["command","space"]'>⌘Space Spotlight</button>
+            <button class="sc-btn" data-keys='["command","tab"]'>⌘Tab Switch</button>
+            <button class="sc-btn" data-keys='["command","w"]'>⌘W Close</button>
+            <button class="sc-btn" data-keys='["command","q"]'>⌘Q Quit</button>
+            <button class="sc-btn" data-keys='["command","s"]'>⌘S Save</button>
+            <button class="sc-btn" data-keys='["command","n"]'>⌘N New</button>
+            <button class="sc-btn" data-keys='["command","shift","4"]'>⌘⇧4 Screenshot</button>
+            <button class="sc-btn" data-keys='["escape"]'>Esc</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- NOTIFICATIONS ----------------------------------------- -->
+    <section id="tab-notifs" class="tab">
+      <div class="notif-header">
+        <span class="section-label" style="padding:0">Notifications</span>
+        <button id="notif-refresh" class="icon-btn">↻</button>
+      </div>
+      <div id="notif-list">
+        <div class="notif-empty">
+          Tap ↻ to load notifications.<br>
+          <span class="notif-note">Requires Full Disk Access for Terminal in<br>
+          System Settings → Privacy &amp; Security</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Bottom tab bar ─────────────────────────────────────── -->
+  <nav id="tab-bar">
+    <button class="tb-btn active" data-tab="apps">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      <span>Apps</span>
+    </button>
+    <button class="tb-btn" data-tab="pad">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="15" rx="2" fill="none" stroke-width="1.8"/><line x1="12" y1="18" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21" stroke-width="1.8"/></svg>
+      <span>Trackpad</span>
+    </button>
+    <button class="tb-btn" data-tab="controls">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" stroke-width="1.8" fill="none"/></svg>
+      <span>Controls</span>
+    </button>
+    <button class="tb-btn" data-tab="notifs">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" fill="none" stroke-width="1.8"/><path d="M13.73 21a2 2 0 0 1-3.46 0" fill="none" stroke-width="1.8"/></svg>
+      <span>Notifs</span>
+    </button>
+  </nav>
+
+  <!-- ── Feedback toast ─────────────────────────────────────── -->
+  <div id="toast"></div>
+
+  <!-- socket.io loaded from CDN — works in both Capacitor and browser -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+  <script src="app.js"></script>
+</body>
+</html>

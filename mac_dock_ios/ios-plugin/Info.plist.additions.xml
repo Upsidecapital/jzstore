@@ -1,0 +1,14 @@
+<!--
+  Add these keys inside the <dict> of ios/App/App/Info.plist
+  They grant local-network access and declare the Bonjour service type.
+-->
+
+<!-- Human-readable reason shown in the iOS permission dialog -->
+<key>NSLocalNetworkUsageDescription</key>
+<string>Mac Dock uses your local Wi-Fi network to find and connect to the Mac Dock server running on your Mac.</string>
+
+<!-- Declare the mDNS service type the app browses for -->
+<key>NSBonjourServices</key>
+<array>
+    <string>_macdock._tcp</string>
+</array>

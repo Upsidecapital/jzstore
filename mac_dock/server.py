@@ -13,12 +13,14 @@ import time
 from pathlib import Path
 
 from flask import Flask, jsonify, send_from_directory
+from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 
 IS_MACOS = sys.platform == "darwin"
 
 app = Flask(__name__, static_folder="dock_ui")
 app.config["SECRET_KEY"] = "mac-dock-2025"
+CORS(app)  # allow Capacitor app (file:// origin) to call REST endpoints
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
 # Lazy-import pyautogui (macOS only; needs Accessibility permission)
@@ -261,6 +263,38 @@ def on_key_combo(data):
         m.hotkey(*keys)
 
 
+# ── Bonjour / mDNS advertisement ─────────────────────────────────────────────
+
+def _start_bonjour(port: int, ip: str):
+    """
+    Advertise this server as _macdock._tcp. on the local network so the
+    Capacitor iOS app can find it automatically without the user typing an IP.
+    Requires: pip install zeroconf
+    """
+    try:
+        from zeroconf import ServiceInfo, Zeroconf
+
+        info = ServiceInfo(
+            "_macdock._tcp.local.",
+            "Mac Dock._macdock._tcp.local.",
+            addresses=[socket.inet_aton(ip)],
+            port=port,
+            properties={"version": "1.0", "platform": "mac"},
+            server=f"{socket.gethostname()}.local.",
+        )
+        zc = Zeroconf()
+        zc.register_service(info)
+        print("  ✓  Bonjour active — iPhone app will find this Mac automatically")
+        return zc, info
+    except ImportError:
+        print("  ⚠  zeroconf not installed — install it for auto-discovery:")
+        print("     pip3 install zeroconf")
+        return None, None
+    except Exception as e:
+        print(f"  ⚠  Bonjour failed: {e}")
+        return None, None
+
+
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 def _local_ip() -> str:
@@ -276,16 +310,20 @@ def _local_ip() -> str:
 
 if __name__ == "__main__":
     port = int(os.environ.get("DOCK_PORT", 8765))
-    ip = _local_ip()
-    url = f"http://{ip}:{port}"
+    ip   = _local_ip()
+    url  = f"http://{ip}:{port}"
 
     print("\n" + "─" * 48)
     print("  📱  iPhone Mac Dock  ·  v1.0")
     print("─" * 48)
-    print(f"  Open this URL on your iPhone:")
+    print(f"  Open this URL on your iPhone (browser):")
     print(f"  ➜  {url}")
-    print(f"\n  (Mac and iPhone must be on the same Wi-Fi)")
+    print(f"\n  The native iOS app finds this Mac automatically.")
+    print(f"  (Mac and iPhone must be on the same Wi-Fi)")
     print("─" * 48)
+
+    # Start Bonjour advertisement (lets the iOS app auto-discover this server)
+    zc, zc_info = _start_bonjour(port, ip)
 
     try:
         import qrcode
@@ -298,4 +336,9 @@ if __name__ == "__main__":
         pass
 
     print()
-    socketio.run(app, host="0.0.0.0", port=port, debug=False)
+    try:
+        socketio.run(app, host="0.0.0.0", port=port, debug=False)
+    finally:
+        if zc and zc_info:
+            zc.unregister_service(zc_info)
+            zc.close()
