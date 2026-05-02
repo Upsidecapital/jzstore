@@ -1,0 +1,42 @@
+[
+  {
+    "turn": 1,
+    "customer": "hi",
+    "expected_intent": "GREETING",
+    "expected_bot_contains": ["Welcome", "MENU", "ORDER"]
+  },
+  {
+    "turn": 2,
+    "customer": "menu",
+    "expected_intent": "MENU_REQUEST",
+    "expected_bot_contains": ["MENU", "RM", "Kopi", "Reply with item numbers"]
+  },
+  {
+    "turn": 3,
+    "customer": "1 4 7",
+    "expected_intent": "ORDER_INPUT",
+    "expected_bot_contains": ["Order Summary", "Kopi O", "Kopi Peng", "Roti Bakar", "TOTAL", "RM"]
+  },
+  {
+    "turn": 4,
+    "customer": "P",
+    "expected_intent": "PICKUP",
+    "expected_bot_contains": ["Pay here", "FPX", "Touch", "expires"]
+  },
+  {
+    "note": "After payment callback fires:",
+    "expected_receipt_contains": ["Receipt", "PAID", "Ready in", "Thank you"]
+  },
+  {
+    "note": "Manglish order test:",
+    "customer": "nak 2 kopi peng satu teh tarik",
+    "expected_intent": "ORDER_INPUT",
+    "expected_bot_contains": ["Kopi Peng", "Teh Tarik"]
+  },
+  {
+    "note": "BM greeting test:",
+    "customer": "hai nak order lah",
+    "expected_intent": "ORDER",
+    "expected_lang": "bm"
+  }
+]
