@@ -17,6 +17,8 @@ function getTitle(pathname: string): string {
   if (pathname.includes('/campaigns')) return 'Campaigns'
   if (pathname.includes('/menu')) return 'Menu Audit'
   if (pathname.includes('/reports')) return 'Monthly Reports'
+  if (pathname.includes('/whatsapp')) return 'WhatsApp Bot'
+  if (pathname.includes('/orders')) return 'Orders'
   if (pathname.match(/\/clients\/[^/]+$/)) return 'Client Overview'
   return 'Naik'
 }

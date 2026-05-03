@@ -4,7 +4,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import {
   LayoutDashboard, Users, CalendarDays, Megaphone, UtensilsCrossed,
-  BarChart3, Zap, Settings, ChevronDown, LogOut, TrendingUp
+  BarChart3, Zap, Settings, ChevronDown, LogOut, TrendingUp,
+  MessageCircle, ShoppingBag
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
@@ -20,6 +21,8 @@ const clientNavItems = [
   { icon: Megaphone, label: 'Campaigns', href: '/campaigns' },
   { icon: UtensilsCrossed, label: 'Menu Audit', href: '/menu' },
   { icon: BarChart3, label: 'Monthly Report', href: '/reports' },
+  { icon: MessageCircle, label: 'WhatsApp Bot', href: '/whatsapp' },
+  { icon: ShoppingBag, label: 'Orders', href: '/orders' },
 ]
 
 const bottomNavItems = [

@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { CalendarDays, Megaphone, UtensilsCrossed, BarChart3, Mail, Phone, User, MapPin, Edit } from 'lucide-react'
+import { CalendarDays, Megaphone, UtensilsCrossed, BarChart3, Mail, Phone, User, MapPin, MessageCircle, ShoppingBag } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -30,9 +30,11 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
 
   const quickActions = [
     { icon: CalendarDays, label: 'Content Calendar', href: `/clients/${id}/content`, color: 'text-blue-600' },
-    { icon: Megaphone, label: 'New Campaign', href: `/clients/${id}/campaigns`, color: 'text-purple-600' },
+    { icon: Megaphone, label: 'Campaigns', href: `/clients/${id}/campaigns`, color: 'text-purple-600' },
     { icon: UtensilsCrossed, label: 'Menu Audit', href: `/clients/${id}/menu`, color: 'text-amber-600' },
     { icon: BarChart3, label: 'Monthly Report', href: `/clients/${id}/reports`, color: 'text-green-600' },
+    { icon: MessageCircle, label: 'WhatsApp Bot', href: `/clients/${id}/whatsapp`, color: 'text-green-500' },
+    { icon: ShoppingBag, label: 'Orders', href: `/clients/${id}/orders`, color: 'text-indigo-600' },
   ]
 
   return (
@@ -50,7 +52,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
       </div>
 
       {/* Quick actions */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
         {quickActions.map(action => (
           <Link key={action.href} href={action.href}>
             <Card className="hover:border-green-400 hover:shadow-md transition-all cursor-pointer">
